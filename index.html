@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HONO — 프리미엄 하이드로-에센스</title>
+    <!-- Google Fonts & FontAwesome (애플 감성 폰트 및 별점 아이콘) -->
+    <link href="https://googleapis.com" rel="stylesheet">
+    <link rel="stylesheet" href="https://cloudflare.com">
+    
+    <style>
+        :root {
+            --primary: #0071e3;
+            --dark: #1d1d1f;
+            --light-grey: #f5f5f7;
+        }
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Noto Sans KR', sans-serif; letter-spacing: -0.05em;
+        }
+        body { background-color: #ffffff; color: var(--dark); overflow-x: hidden; }
+        
+        /* 네비게이션 바 (애플/삼성 스타일) */
+        nav {
+            position: fixed; top: 0; width: 100%; height: 48px;
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px);
+            z-index: 1000; border-bottom: 1px solid rgba(0,0,0,0.08);
+            display: flex; justify-content: center; align-items: center;
+        }
+        .nav-container { width: 100%; max-width: 1024px; display: flex; justify-content: space-between; padding: 0 22px; }
+        .logo { font-weight: 700; font-size: 18px; cursor: pointer; color: var(--dark); text-decoration: none; }
+        .nav-links { display: flex; gap: 24px; list-style: none; }
+        .nav-links a { font-size: 12px; color: #515154; text-decoration: none; cursor: pointer; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--primary); }
+
+        /* 히어로 섹션 (자연 이미지 -> 흰색 그라데이션) */
+        .hero {
+            margin-top: 48px; min-height: 90vh;
+            /* 고화질 알프스 산맥 이미지에서 아래로 갈수록 흰색으로 변하는 그라데이션 효과 */
+            background: linear-gradient(to bottom, rgba(255,255,255,0) 60%, rgba(255,255,255,1) 100%), 
+                        url('https://unsplash.com') no-repeat center;
+            background-size: cover;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 20px;
+        }
+        .hero h1 { font-size: 56px; font-weight: 700; margin-bottom: 12px; background: linear-gradient(180deg, #1d1d1f, #86868b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 24px; font-weight: 400; color: #515154; max-width: 600px; margin-bottom: 30px; line-height: 1.4; }
+
+        /* 제품 정보 및 가짜 과학 기술 섹션 */
+        .tech-section { max-width: 1024px; margin: 80px auto; padding: 0 22px; text-align: center; }
+        .tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; margin-top: 50px; }
+        .tech-card { background: var(--light-grey); padding: 40px 30px; border-radius: 18px; transition: transform 0.3s; }
+        .tech-card:hover { transform: translateY(-5px); }
+        .tech-card i { font-size: 32px; color: var(--primary); margin-bottom: 20px; }
+        .tech-card h3 { font-size: 20px; margin-bottom: 12px; }
+        .tech-card p { font-size: 14px; color: #6e6e73; line-height: 1.6; }
+
+        /* 구매 섹션 (수량 조절 기능) */
+        .purchase-section { background: var(--light-grey); padding: 80px 20px; text-align: center; }
+        .product-box { max-width: 400px; margin: 0 auto; background: #ffffff; padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .price { font-size: 28px; font-weight: 700; margin: 15px 0; }
+        .quantity-control { display: flex; justify-content: center; align-items: center; gap: 15px; margin: 20px 0; }
+        .qty-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #d2d2d7; background: #fff; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .qty-btn:hover { background: var(--light-grey); }
+        #quantity { font-size: 18px; font-weight: 500; width: 30px; }
+        .buy-btn { width: 100%; background: var(--primary); color: #fff; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: 500; cursor: pointer; transition: opacity 0.2s; }
+        .buy-btn:hover { opacity: 0.9; }
+
+        /* 무한 스트리밍 후기 섹션 (외국인 스톡이미지, 천천히 오른쪽 이동) */
+        .reviews-container { width: 100%; overflow: hidden; background: #ffffff; padding: 60px 0; position: relative; }
+        .reviews-title { text-align: center; font-size: 28px; font-weight: 700; margin-bottom: 40px; }
+        .reviews-track { display: flex; width: max-content; animation: scrollRight 35s linear infinite; }
+        .review-card { background: var(--light-grey); width: 320px; padding: 25px; margin-left: 24px; border-radius: 18px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; }
+        .reviewer-info { display: flex; align-items: center; gap: 15px; }
+        .reviewer-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
+        .reviewer-name { font-weight: 500; font-size: 15px; }
+        .stars { color: #ffcc00; font-size: 14px; }
+        .review-text { font-size: 14px; color: #424245; line-height: 1.5; }
+
+        /* 후기 우측 무한 이동 애니메이션 */
+        @keyframes scrollRight {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
+        }
+
+        /* 푸터 영역 */
+        footer { background: var(--light-grey); padding: 40px 22px; font-size: 12px; color: #86868b; text-align: center; border-top: 1px solid #d2d2d7; }
+        .footer-links { margin-bottom: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .footer-links a { color: #515154; text-decoration: none; cursor: pointer; }
+        .footer-links a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <!-- 고퀄리티 상단 바 (모든 버튼 경고창 연결로 작동 구현) -->
+    <nav>
+        <div class="nav-container">
+            <a class="logo" onclick="alert('HONO 공식 메인 페이지입니다.')">HONO</a>
+            <ul class="nav-links">
+                <li><a onclick="alert('브랜드 역사: 2026년 혁신적 분자 배열 연구를 통해 설립되었습니다.')">역사</a></li>
+                <li><a onclick="alert('브랜드 소개: 우리는 일산화이디수소의 가치를 극대화합니다.')">소개</a></li>
+                <li><a onclick="alert('기술 협업: 글로벌 생명공학 연구소들과 포뮬러 파트너십을 맺고 있습니다.')">협업</a></li>
+                <li><a onclick="alert('공식 협찬: 서울시 글로벌 디자인 포럼의 공식 수분 파트너입니다.')">협찬</a></li>
+                <li><a onclick="alert('고객 문의: 1:1 상담 및 엔지니어 문의 채널입니다. (평일 09:00~18:00)')">문의</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 히어로 섹션 -->
+    <section class="hero">
+        <h1>HONO Hydro-Essence</h1>
+        <p>인류가 도달하지 못한 자연의 최정상에서 과학적 메커니즘으로 추출한 투명한 포뮬러.</p>
+    </section>
+
+    <!-- 가짜 과학 용어 기술 섹션 -->
+    <section class="tech-section">
+        <h2>공학적으로 설계된 완벽한 밸런스</h2>
+        <div class="tech-grid">
+            <div class="tech-card">
+                <i class="fa-solid fa-atom"></i>
+                <h3>일산화이디수소 99.9%</h3>
+                <p>수소 원자 2개와 산소 원자 1개가 정밀한 공유 결합을 이루어, 인체 세포 흡수에 최적화된 기적의 성분 농도를 구현했습니다.</p>
+            </div>
+            <div class="tech-card">
+                <i class="fa-solid fa-flask"></i>
+                <h3>글루타민산나트륨 시너지</h3>
+                <p>자연계 유래 아미노산 복합체 성분을 아주 미량 첨가하여, 미각 세포를 자극하고 목 넘김의 감칠맛을 혁신적으로 끌어올렸습니다.</p>
+            </div>
+            <div class="tech-card">
+                <i class="fa-solid fa-wave-square"></i>
+                <h3>소닉 파모니 에이징</h3>
+                <p>음파 진동 에이징 공법을 통해 액체 내부 분자들의 운동 에너지를 고르게 정렬시켜 극도의 부드러움을 완성했습니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 구매 섹션 (기능 작동) -->
+    <section class="purchase-section">
+        <div class="product-box">
+            <h3>HONO 에센셜 팩 (500ml)</h3>
+            <p style="color:#86868b; font-size:14px; margin-top:5px;">한정 수량 패키지</p>
+            <div class="price"><span id="total-price">5,000</span>원</div>
+            
+            <div class="quantity-control">
+                <button class="qty-btn" onclick="changeQty(-1)">-</button>
+                <div id="quantity">1</div>
+                <button class="qty-btn" onclick="changeQty(1)">+</button>
+            </div>
+            
+            <button class="buy-btn" onclick="triggerEasterEgg()">지금 사전 예약하기</button>
+        </div>
+    </section>
+
+    <!-- 무한 스크롤 후기 섹션 (외국인 스톡이미지, 천천히 우측으로 이동, 평점 5점) -->
+    <section class="reviews-container">
+        <div class="reviews-title">Global Reviews</div>
+        <div class="reviews-track">
+            <!-- 무한 루프 구현을 위해 동일한 카드를 여러 개 배치 -->
+            <div class="review-card">
+                <div class="reviewer-info">
+                    <img src="https://unsplash.com" class="reviewer-img" alt="스톡이미지">
+                    <div>
+                        <div class="reviewer-name">Sarah Jenkins</div>
+                        <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i> 5.0</div>
+                    </div>
+                </div>
+                <div class="review-text">"일산화이디수소 특유의 맑고 순수한 목 넘김이 기존 제품들과 완전히 차별화됩니다."</div>
+            </div>
+            
+            <div class="review-card">
+                <div class="reviewer-info">
+                    <img src="https://unsplash.com" class="reviewer-img" alt="스톡이미지">
+                    <div>
+                        <div class="reviewer-name">David Miller</div>
+                        <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i> 5.0</div>
+                    </div>
+                </div>
